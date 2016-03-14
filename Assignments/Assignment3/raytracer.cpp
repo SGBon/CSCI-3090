@@ -4,7 +4,7 @@
 //
 //  Created for the Computer Science course "Introduction Computer Graphics"
 //  taught at the University of Groningen by Tobias Isenberg and used with permission
-//  in "Computer Graphics and Scientific Visualization" taught at UOIT by 
+//  in "Computer Graphics and Scientific Visualization" taught at UOIT by
 //  Christopher Collins.
 //
 //  Author:
@@ -39,18 +39,21 @@ Triple parseTriple(const YAML::Node& node)
     Triple t;
     node[0] >> t.x;
     node[1] >> t.y;
-    node[2] >> t.z;	
+    node[2] >> t.z;
     return t;
 }
 
 Material* Raytracer::parseMaterial(const YAML::Node& node)
 {
     Material *m = new Material();
-    node["color"] >> m->color;	
+    node["color"] >> m->color;
     node["ka"] >> m->ka;
     node["kd"] >> m->kd;
     node["ks"] >> m->ks;
     node["n"] >> m->n;
+    node["reflect"] >> m->reflect;
+    node["refract"] >> m->refract;
+    node["eta"] >> m->eta;
     return m;
 }
 
@@ -65,7 +68,7 @@ Object* Raytracer::parseObject(const YAML::Node& node)
         node["position"] >> pos;
         double r;
         node["radius"] >> r;
-        Sphere *sphere = new Sphere(pos,r);		
+        Sphere *sphere = new Sphere(pos,r);
         returnObject = sphere;
     }
 

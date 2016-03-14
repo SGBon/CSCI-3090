@@ -9,9 +9,9 @@
 //    Maarten Everts
 //    Jasper van de Gronde
 //
-//  This framework is inspired by and uses code of the raytracer framework of 
+//  This framework is inspired by and uses code of the raytracer framework of
 //  Bert Freudenberg that can be found at
-//  http://isgwww.cs.uni-magdeburg.de/graphik/lehre/cg2/projekt/rtprojekt.html 
+//  http://isgwww.cs.uni-magdeburg.de/graphik/lehre/cg2/projekt/rtprojekt.html
 //
 
 #ifndef SCENE_H_KNBLQLP6
@@ -29,8 +29,12 @@ private:
     std::vector<Object*> objects;
     std::vector<Light*> lights;
     Triple eye;
+
+    //jiggle the ray
+    void jiggle(Ray& ray);
+
 public:
-    Color trace(const Ray &ray);
+    Color trace(const Ray &ray,int steps);
     void render(Image &img);
     void addObject(Object *o);
     void addLight(Light *l);
