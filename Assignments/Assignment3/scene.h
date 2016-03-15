@@ -32,9 +32,11 @@ private:
 
     //jiggle the ray
     void jiggle(Ray& ray);
+    // calculate refraction ray
+    Vector fractf(double eta1,double eta, Vector dir, Vector norm);
 
 public:
-    Color trace(const Ray &ray,int steps);
+    Color trace(const Ray &ray,int steps,double eta1);
     void render(Image &img);
     void addObject(Object *o);
     void addLight(Light *l);

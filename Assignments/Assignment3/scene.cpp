@@ -17,7 +17,7 @@
 #include "scene.h"
 #include "material.h"
 
-Color Scene::trace(const Ray &ray, int steps)
+Color Scene::trace(const Ray &ray, int steps,double eta1)
 {
     // Find hit object and distance
     Hit min_hit(std::numeric_limits<double>::infinity(),Vector());
@@ -66,21 +66,49 @@ Color Scene::trace(const Ray &ray, int steps)
     double e = material->n; // exponent of specular highlight size
     double reflect = material->reflect; // reflect coefficient
     double refract = material->refract; // refraction coefficient
-    double eta = material->eta; // refraction index
+
+    double eta2 = material->eta; // refraction index
+    if(eta1 == eta2){
+      eta2 = 1.0;
+    }
 
     // get reflected ray
-    // recursively trace it up to steps times
-    Vector vec_ref = ray.D - 2 *(ray.D.dot(N))*N; // reflect ray direction
+    Vector vec_ref = ray.D - (2.0 *(ray.D.dot(N))*N); // reflect ray direction
     Ray ray_ref(hit,vec_ref); //reflect ray
     // jiggle the ray
     jiggle(ray_ref);
 
-    Color c_ref; // colour of reflected ray
-    if(steps > 0){
-      c_ref = trace(ray_ref,steps-1);
+    // hack
+    Vector frac_n;
+    if(ray.D.dot(N) < 0.0){
+      frac_n = N;
+    }else{
+      frac_n = -N;
     }
 
-    Color color = ka * base * ambient;
+    // get refracted ray
+    bool frac_flag;
+    Vector frac_dir = fractf(eta1,eta2,ray.D,frac_n); // direction of refraction
+
+    Ray ray_frac(hit,frac_dir); // ray going out of the material
+    if(frac_dir.length_2() > 0.0 && refract > 0.0){
+      frac_flag = true;
+    }else{
+      frac_flag = false;
+    }
+
+    // jiggle the ray
+    jiggle(ray_frac);
+
+    Color c_ref; // colour of reflected ray
+    Color c_frac; // colour of refracted ray
+    // recursively trace reflected/refracted rays up to steps times
+    if(steps > 0){
+      if(reflect > 0.0) c_ref = trace(ray_ref,steps-1,eta1);
+      if(frac_flag) c_frac = trace(ray_frac, steps-1,eta2);
+    }
+
+    Color color = ka * base * ambient; // set ambient colour
     for(unsigned int i = 0;i<lights.size();i++){
       bool shadows = false; // flag if the current light cast a shadow
       Vector L = hit - lights[i]->position; // vector of light direction
@@ -114,7 +142,7 @@ Color Scene::trace(const Ray &ray, int steps)
       }
     }
 
-    color += reflect*c_ref;
+    color += reflect*c_ref + refract*c_frac;
 
     return color;
 }
@@ -127,7 +155,7 @@ void Scene::render(Image &img)
         for (int x = 0; x < w; x++) {
             Point pixel(x, h-1-y, 0);
             Ray ray(eye, (pixel-eye).normalized());
-            Color col = trace(ray,10);
+            Color col = trace(ray,10,1.0);
             col.clamp();
             img(x,y) = col;
         }
@@ -152,4 +180,20 @@ void Scene::setEye(Triple e)
 void Scene::jiggle(Ray& ray){
   Point pjig = ray.at(pow(2,-32));
   ray = Ray(pjig,ray.D);
+}
+
+Vector Scene::fractf(double eta1, double eta2, Vector dir, Vector norm){
+  Vector t;
+
+  // check if root is negative
+  double root = 1.0 - ((pow(eta1,2.0)*(1.0 - (pow(dir.dot(norm),2.0))))/pow(eta2,2.0));
+
+  if(root < 0.0){
+    return t;
+  }
+
+  // first half of equation
+  t = ((eta1*(dir - norm*(dir.dot(norm))))/eta2) - (norm*sqrt(root));
+
+  return t;
 }

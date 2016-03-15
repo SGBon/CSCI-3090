@@ -25,7 +25,7 @@ public:
     Sphere(Point position,double r) : position(position), r(r) { }
 
     // calculates roots for quadratic formula
-    // coefficents of quadratic formula ABC
+    // coefficents of quadratic formula A,B,C
     // neg controls the +/-
     // true for -, false for +
     double quadf(double A, double B, double C, bool neg);

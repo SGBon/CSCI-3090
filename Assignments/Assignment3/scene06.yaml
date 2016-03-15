@@ -1,6 +1,6 @@
 ---
 #  scene05.yaml: test scene for shawdows and reflection + refraction
-Eye: [200,200,1000]  
+Eye: [200,200,1000]
 
 Lights:
 - position: [-200,600,1500]
@@ -56,7 +56,7 @@ Objects:
     n: 32
     reflect: 0.8
     refract: 0.0
-    eta: 1.0  
+    eta: 1.0
 - type: sphere
   position: [140,220,400]
   radius: 50

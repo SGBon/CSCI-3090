@@ -72,6 +72,10 @@ Object* Raytracer::parseObject(const YAML::Node& node)
         returnObject = sphere;
     }
 
+    if(objectType == "quad"){
+      // do stuff;
+    }
+
     if (returnObject) {
         // read the material and attach to object
         returnObject->material = parseMaterial(node["material"]);
