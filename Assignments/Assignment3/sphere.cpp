@@ -91,7 +91,7 @@ Hit Sphere::intersect(const Ray &ray)
     p = ray.O + t*ray.D;
     Vector N = position - p;
     N.normalize();
-    
+
     return Hit(t,N);
 }
 

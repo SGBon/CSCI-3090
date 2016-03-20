@@ -14,6 +14,7 @@
 #include "raytracer.h"
 #include "object.h"
 #include "sphere.h"
+#include "triangle.h"
 #include "material.h"
 #include "light.h"
 #include "image.h"
@@ -21,6 +22,7 @@
 #include <ctype.h>
 #include <fstream>
 #include <assert.h>
+#include <stdio.h>
 
 // Functions to ease reading from YAML input
 void operator >> (const YAML::Node& node, Triple& t);
@@ -28,10 +30,11 @@ Triple parseTriple(const YAML::Node& node);
 
 void operator >> (const YAML::Node& node, Triple& t)
 {
-    assert(node.size()==3);
-    node[0] >> t.x;
-    node[1] >> t.y;
-    node[2] >> t.z;
+
+  assert(node.size()==3);
+  node[0] >> t.x;
+  node[1] >> t.y;
+  node[2] >> t.z;
 }
 
 Triple parseTriple(const YAML::Node& node)
@@ -72,8 +75,16 @@ Object* Raytracer::parseObject(const YAML::Node& node)
         returnObject = sphere;
     }
 
-    if(objectType == "quad"){
-      // do stuff;
+
+    if(objectType == "triangle"){
+      Point v1;
+      Point v2;
+      Point v3;
+      node["V1"] >> v1;
+      node["V2"] >> v2;
+      node["V3"] >> v3;
+      Triangle *triangle = new Triangle(v1,v2,v3);
+      returnObject = triangle;
     }
 
     if (returnObject) {

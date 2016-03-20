@@ -17,6 +17,8 @@
 #include "scene.h"
 #include "material.h"
 
+const double AIR_ETA = 1.0;
+
 Color Scene::trace(const Ray &ray, int steps,double eta1)
 {
     // Find hit object and distance
@@ -66,10 +68,10 @@ Color Scene::trace(const Ray &ray, int steps,double eta1)
     double e = material->n; // exponent of specular highlight size
     double reflect = material->reflect; // reflect coefficient
     double refract = material->refract; // refraction coefficient
-
     double eta2 = material->eta; // refraction index
+
     if(eta1 == eta2){
-      eta2 = 1.0;
+      eta2 = AIR_ETA;
     }
 
     // get reflected ray
@@ -110,7 +112,7 @@ Color Scene::trace(const Ray &ray, int steps,double eta1)
 
     Color color = ka * base * ambient; // set ambient colour
     for(unsigned int i = 0;i<lights.size();i++){
-      bool shadows = false; // flag if the current light cast a shadow
+      bool shaded = false; // flag if the current light cast a shadow
       Vector L = hit - lights[i]->position; // vector of light direction
       Vector SL = lights[i]->position - hit; // vector of shadow feeler
       L.normalize();
@@ -121,15 +123,17 @@ Color Scene::trace(const Ray &ray, int steps,double eta1)
       //jiggle Ray
       jiggle(feeler);
       // test to see if object is in shadow
-      for(unsigned int i = 0;i<objects.size();i++){
-        Hit test(objects[i]->intersect(feeler));
+      if(shadows){
+      for(unsigned int j = 0;j<objects.size();j++){
+        Hit test(objects[j]->intersect(feeler));
         if(test.t >= 0.0)  {
-          shadows = true;
+          shaded = true;
           break;
         }
       }
+    }
 
-      if(!shadows){
+      if(!shaded){
         Color lc = lights[i]->color; // colour of light
 
         double lnDot = L.dot(N); // dot product of light

@@ -29,6 +29,7 @@ private:
     std::vector<Object*> objects;
     std::vector<Light*> lights;
     Triple eye;
+    bool shadows = true; // flag if we are drawing shadows
 
     //jiggle the ray
     void jiggle(Ray& ray);
